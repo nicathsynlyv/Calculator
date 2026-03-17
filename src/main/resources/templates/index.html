@@ -1,39 +1,197 @@
-<form action="/calculate" method="post" id="calcForm">
-    <div class="inputs">
-        <input type="number" name="a" placeholder="Birinci ədəd"
-               th:value="${a}" step="any" required>
-        <input type="number" name="b" placeholder="İkinci ədəd"
-               th:value="${b}" step="any" required>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulyator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 360px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.4rem;
+            color: #1a1a2e;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .display {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+
+        .display .expression {
+            color: #8888aa;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .display .result {
+            color: white;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+
+        .display .error {
+            color: #ff6b6b;
+            font-size: 0.95rem;
+        }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: #1a1a2e;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #4f46e5;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            font-weight: 500;
+        }
+
+        button:active { transform: scale(0.95); }
+
+        .btn-op {
+            background: #f0f0f5;
+            color: #1a1a2e;
+        }
+
+        .btn-op:hover { background: #e0e0ef; }
+
+        .btn-op.active {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-equals {
+            grid-column: span 4;
+            background: #4f46e5;
+            color: white;
+            font-size: 1rem;
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        .btn-equals:hover { background: #4338ca; }
+
+        .op-symbols { font-size: 1.3rem; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Kalkulyator</h1>
+
+    <div class="display">
+        <div class="expression" th:if="${a != null}">
+            <span th:text="${a}"></span>
+            <span th:switch="${op}">
+                <span th:case="'add'"> + </span>
+                <span th:case="'subtract'"> − </span>
+                <span th:case="'multiply'"> × </span>
+                <span th:case="'divide'"> ÷ </span>
+            </span>
+            <span th:text="${b}"></span>
+        </div>
+        <div class="result"
+             th:if="${result != null}"
+             th:text="${result}">0</div>
+        <div class="result"
+             th:if="${result == null and error == null}">0</div>
+        <div class="error"
+             th:if="${error != null}"
+             th:text="${error}"></div>
     </div>
 
-    <input type="hidden" name="op" id="hiddenOp" value="add">
+    <form action="/calculate" method="post" id="calcForm">
+        <div class="inputs">
+            <input type="number" name="a" placeholder="Birinci ədəd"
+                   th:value="${a}" step="any" required>
+            <input type="number" name="b" placeholder="İkinci ədəd"
+                   th:value="${b}" step="any" required>
+        </div>
 
-    <div class="buttons">
-        <button type="button" onclick="setOp('add')"
-                class="btn-op" th:classappend="${op == 'add'} ? 'active'" id="btn-add">+</button>
-        <button type="button" onclick="setOp('subtract')"
-                class="btn-op" th:classappend="${op == 'subtract'} ? 'active'" id="btn-subtract">−</button>
-        <button type="button" onclick="setOp('multiply')"
-                class="btn-op" th:classappend="${op == 'multiply'} ? 'active'" id="btn-multiply">×</button>
-        <button type="button" onclick="setOp('divide')"
-                class="btn-op" th:classappend="${op == 'divide'} ? 'active'" id="btn-divide">÷</button>
-    </div>
+        <input type="hidden" name="op" id="hiddenOp" value="add">
 
-    <button type="submit" class="btn-equals">= Hesabla</button>
-</form>
+        <div class="buttons">
+            <button type="button" onclick="setOp('add')"
+                    class="btn-op" th:classappend="${op == 'add'} ? 'active'" id="btn-add">+</button>
+            <button type="button" onclick="setOp('subtract')"
+                    class="btn-op" th:classappend="${op == 'subtract'} ? 'active'" id="btn-subtract">−</button>
+            <button type="button" onclick="setOp('multiply')"
+                    class="btn-op" th:classappend="${op == 'multiply'} ? 'active'" id="btn-multiply">×</button>
+            <button type="button" onclick="setOp('divide')"
+                    class="btn-op" th:classappend="${op == 'divide'} ? 'active'" id="btn-divide">÷</button>
+        </div>
 
-<script>
-    function setOp(op) {
-        document.getElementById('hiddenOp').value = op;
-        ['add','subtract','multiply','divide'].forEach(o => {
-            document.getElementById('btn-' + o).classList.remove('active');
-        });
-        document.getElementById('btn-' + op).classList.add('active');
-    }
+        <button type="submit" class="btn-equals">= Hesabla</button>
+    </form>
 
-    // Səhifə yüklənəndə əvvəlki seçimi göstər
-    window.onload = function() {
-        const current = document.getElementById('hiddenOp').value;
-        if(current) setOp(current);
-    }
-</script>
+    <script>
+        function setOp(op) {
+            document.getElementById('hiddenOp').value = op;
+            ['add','subtract','multiply','divide'].forEach(o => {
+                document.getElementById('btn-' + o).classList.remove('active');
+            });
+            document.getElementById('btn-' + op).classList.add('active');
+        }
+
+        // Səhifə yüklənəndə əvvəlki seçimi göstər
+        window.onload = function() {
+            const current = document.getElementById('hiddenOp').value;
+            if(current) setOp(current);
+        }
+    </script>
+</div>
+</body>
+</html>
