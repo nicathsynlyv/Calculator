@@ -1,14 +1,14 @@
 package Controller;
 
 import Service.CalculatorService;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/calc")
+@Controller                    // ← @RestController deyil!
 public class CalculatorController {
-    private final CalculatorService service;
 
+    private final CalculatorService service;
 
     public CalculatorController(CalculatorService service) {
         this.service = service;
@@ -27,7 +27,6 @@ public class CalculatorController {
                             Model model) {
         try {
             double result = service.calculate(a, b, op);
-            // Tam ədəddirsə onluq göstərmə
             if (result == Math.floor(result)) {
                 model.addAttribute("result", (long) result);
             } else {
