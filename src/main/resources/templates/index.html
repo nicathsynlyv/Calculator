@@ -87,6 +87,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
+            margin-bottom: 10px;
         }
 
         button {
@@ -114,7 +115,7 @@
         }
 
         .btn-equals {
-            grid-column: span 4;
+            width: 100%;
             background: #4f46e5;
             color: white;
             font-size: 1rem;
@@ -124,8 +125,6 @@
         }
 
         .btn-equals:hover { background: #4338ca; }
-
-        .op-symbols { font-size: 1.3rem; }
     </style>
 </head>
 <body>
@@ -143,14 +142,9 @@
             </span>
             <span th:text="${b}"></span>
         </div>
-        <div class="result"
-             th:if="${result != null}"
-             th:text="${result}">0</div>
-        <div class="result"
-             th:if="${result == null and error == null}">0</div>
-        <div class="error"
-             th:if="${error != null}"
-             th:text="${error}"></div>
+        <div class="result" th:if="${result != null}" th:text="${result}">0</div>
+        <div class="result" th:if="${result == null and error == null}">0</div>
+        <div class="error" th:if="${error != null}" th:text="${error}"></div>
     </div>
 
     <form action="/calculate" method="post" id="calcForm">
@@ -161,11 +155,11 @@
                    th:value="${b}" step="any" required>
         </div>
 
-        <input type="hidden" name="op" id="hiddenOp" value="add">
+        <input type="hidden" name="op" id="hiddenOp" th:value="${op != null ? op : 'add'}">
 
         <div class="buttons">
             <button type="button" onclick="setOp('add')"
-                    class="btn-op" th:classappend="${op == 'add'} ? 'active'" id="btn-add">+</button>
+                    class="btn-op" th:classappend="${op == 'add' or op == null} ? 'active'" id="btn-add">+</button>
             <button type="button" onclick="setOp('subtract')"
                     class="btn-op" th:classappend="${op == 'subtract'} ? 'active'" id="btn-subtract">−</button>
             <button type="button" onclick="setOp('multiply')"
@@ -176,22 +170,16 @@
 
         <button type="submit" class="btn-equals">= Hesabla</button>
     </form>
-
-    <script>
-        function setOp(op) {
-            document.getElementById('hiddenOp').value = op;
-            ['add','subtract','multiply','divide'].forEach(o => {
-                document.getElementById('btn-' + o).classList.remove('active');
-            });
-            document.getElementById('btn-' + op).classList.add('active');
-        }
-
-        // Səhifə yüklənəndə əvvəlki seçimi göstər
-        window.onload = function() {
-            const current = document.getElementById('hiddenOp').value;
-            if(current) setOp(current);
-        }
-    </script>
 </div>
+
+<script>
+    function setOp(op) {
+        document.getElementById('hiddenOp').value = op;
+        ['add','subtract','multiply','divide'].forEach(function(o) {
+            document.getElementById('btn-' + o).classList.remove('active');
+        });
+        document.getElementById('btn-' + op).classList.add('active');
+    }
+</script>
 </body>
 </html>
